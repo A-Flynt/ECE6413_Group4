@@ -1,0 +1,1 @@
+cls & python mp1_nn1.py > nn1_output.txt
