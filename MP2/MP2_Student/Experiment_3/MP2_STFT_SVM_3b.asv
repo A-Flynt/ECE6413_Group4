@@ -39,7 +39,7 @@ normalize_data = 1;
 %
 % LibSVM training string
 %
-libsvm_train_str = '-s 0 -t 2 -c 10 -e 0.00001 -g 1e5 -q';
+libsvm_train_str = '-s 0 -t 2 -c 10 -e 0.00001 -q';
 
 %
 % Load the datafile in
@@ -235,8 +235,6 @@ fprintf('\nRunning SVM for all features.\n');
 
 % Train
 svm_model = svmtrain(Ytrain, sparse(Xtrain), libsvm_train_str);
-
-svm_toy(Ytrain, sparse(Xtrain), libsvm_train_str);
 
 %
 % Get results on training and testing set, and plot the discriminant function

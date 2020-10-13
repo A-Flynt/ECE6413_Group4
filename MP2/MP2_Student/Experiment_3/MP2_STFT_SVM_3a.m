@@ -209,16 +209,16 @@ for n = 1:Nfeatures
    Xtest_feature = Xtest(:,n);
    
    % Train
-   svm_model = svmtrain(Xtrain_feature, sparse(Xtrain_feature), libsvm_train_str);
+   svm_model = svmtrain(Ytrain, sparse(Xtrain_feature), libsvm_train_str);
 
    %
    % Get results on training and testing set, and plot the discriminant function
    %
-   train_pred = svmpredict(Xtrain_feature, sparse(Xtrain_feature), svm_model, '-q');
+   train_pred = svmpredict(Ytrain, sparse(Xtrain_feature), svm_model, '-q');
    fprintf("\nTraining confusion matrix and stats (only feature %d):\n", n);
    [~, train_oa, ~, ~, ~, ~] = confusion_matrix(train_pred, Ytrain, 1, 1);
    
-   test_pred = svmpredict(Xtest_feature, sparse(Xtest_feature), svm_model, '-q');
+   test_pred = svmpredict(Ytest, sparse(Xtest_feature), svm_model, '-q');
    fprintf("\nTesting confusion matrix and stats (only feature %d:\n", n);
    [~, test_oa, ~, ~, ~, ~] = confusion_matrix(test_pred, Ytest, 1, 1);
 
