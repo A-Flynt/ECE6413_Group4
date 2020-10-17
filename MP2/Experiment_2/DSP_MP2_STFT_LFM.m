@@ -112,6 +112,6 @@ for i = 1:5
     %
     [s1,t_2,f] = DSP_stft(x, g1, fs, N);
     plot_STFT(t_2, f/1e3, 20*log10(abs(s1)),'t (sec)', 'f (kHz)', ...
-       sprintf('STFT Magnitude (dB) sigma = %.2f', sigma_arr), 1);
+       sprintf('STFT Magnitude (dB) sigma = %.2f', sigma_arr(i)), 1);
 
 end
