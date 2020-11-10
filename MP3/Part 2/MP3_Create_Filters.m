@@ -74,9 +74,17 @@ max_N = {3, ...                         % Bass
 %
 % Filter type. Only have one uncommented.
 %
-%filter_type = 'Butterworth'; 
-%filter_type = 'Chebyshev-I';
-filter_type = 'Elliptic';
+option = input('Select a filter type.\n1) Butterworth\n2) Chebyshev-I\n3) Elliptic\n>>>');
+switch option
+    case 1
+        filter_type = 'Butterworth'; 
+    case 2
+        filter_type = 'Chebyshev-I';
+    case 3
+        filter_type = 'Elliptic';
+    otherwise
+        return
+end
 
 %
 % Create filters
@@ -133,6 +141,14 @@ for k = 1 : length(regions)
          
    end
    
+   if(k == 1) 
+       disp(bb)
+       disp(aa)
+   end
+   figure
+   zplane(bb,aa);
+   figure
+   impz(bb,aa,50)
    %
    % Normalize filter response to specified frequency
    %
