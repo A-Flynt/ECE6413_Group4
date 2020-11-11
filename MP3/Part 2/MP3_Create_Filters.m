@@ -67,14 +67,14 @@ f_stopband_Hz = {[1, 350], ...            % Bass
 % Hint: Values from 3 to 8 are reasonable
 %
 max_N = {3, ...                         % Bass
-         4, ...                         % Lower midrange
+         5, ...                         % Lower midrange
          7, ...                         % Upper midrange
          8};                            % High end
       
 %
 % Filter type. Only have one uncommented.
 %
-option = input('Select a filter type.\n1) Butterworth\n2) Chebyshev-I\n3) Elliptic\n>>>');
+option = input('Select a filter type.\n1) Butterworth\n2) Chebyshev-I\n3) Elliptic\n4) Parks-McClellan\n>>>');
 switch option
     case 1
         filter_type = 'Butterworth'; 
@@ -82,6 +82,8 @@ switch option
         filter_type = 'Chebyshev-I';
     case 3
         filter_type = 'Elliptic';
+    case 4
+        filter_type = 'PM';
     otherwise
         return
 end
@@ -127,7 +129,7 @@ for k = 1 : length(regions)
          [N, Wp] = cheb1ord(Wpass, Wstop, Rp, As);
          N = min(N, N_filter_max);
          [bb, aa] = cheby1(N, Rp, Wp);
-         title_str = 'chebyshev1_filter_coeff.mat'
+         title_str = 'chebyshev1_filter_coeff.mat';
          
       case 'Elliptic'
          Wpass = [f_pass_lo, f_pass_hi] / (fs/2);
@@ -137,18 +139,41 @@ for k = 1 : length(regions)
          [N, Wp] = ellipord(Wpass, Wstop, Rp, As);
          N = min(N, N_filter_max);
          [bb, aa] = ellip(N, Rp, As, Wp);
-         title_str = 'elliptic.mat'
+         title_str = 'elliptic.mat';
+      case 'PM'
+         Wpass = [f_pass_lo, f_pass_hi] / (fs/2);
+         Wstop = [f_stop_lo, f_stop_hi] / (fs/2);
+         Rp = 0.05;
+         As = 60;
+         dev = [(10^(Rp/20)-1)/(10^(Rp/20)+1) 10^(-As/20) ]; 
+         [N, Rp, As, Wp] = firpmord([f_pass_hi f_stop_hi],[1 0],dev,fs);
+         [bb, aa] = firpm(N, Rp, As, Wp);
+         title_str = 'pm.mat';
+         
+
          
    end
    
-   if(k == 1) 
+   if(k == 1 && ~strcmp(filter_type,'PM')) 
        disp(bb)
        disp(aa)
    end
+   
+   if(k == 1 && strcmp(filter_type,'Elliptic')) 
+       b_elliptic = bb;
+       a_elliptic = aa;
+   end
+   
    figure
+   file_nm = (sprintf('%s Z Plane. Order %d %s.', ...
+      regions{k}, N, filter_type));
    zplane(bb,aa);
+   saveas(gcf,strcat(file_nm,'.png'));
    figure
+   file_nm = (sprintf('%s Impulse Response. Order %d %s.', ...
+      regions{k}, N, filter_type));
    impz(bb,aa,50)
+   saveas(gcf,strcat(file_nm,'.png'));
    %
    % Normalize filter response to specified frequency
    %
@@ -178,12 +203,34 @@ for k = 1 : length(regions)
    h = plot(f/1e3, H_dB); set(h, 'LineWidth', 1.5);
    hold on;
    h = plot([f_pass_lo f_pass_lo f_pass_hi f_pass_hi] / 1e3, [-100 0 0 -100], 'r--'); set(h, 'LineWidth', 1.5);
-   title(sprintf('%s Frequency Response. Order %d %s.', ...
+   file_nm = (sprintf('%s Frequency Response. Order %d %s.', ...
       regions{k}, N, filter_type));
+  title(file_nm);
    xlabel('f (kHz)');
    ylabel('|H(f)| dB');
    ax = axis;
    axis([0, fs/2/1e3, -60, 3]); drawnow;
+   saveas(h,strcat(file_nm,'.png'));
+   
+   if strcmp(filter_type,'Elliptic')
+         Wpass = [f_pass_lo, f_pass_hi] / (fs/2);
+         Wstop = [f_stop_lo, f_stop_hi] / (fs/2);
+         Rp = 0.05;
+         As = 60;
+         dev = [(10^(Rp/20)-1)/(10^(Rp/20)+1) 10^(-As/20) ]; 
+         [N, Rp, As, Wp] = firpmord([f_pass_hi f_stop_hi],[1 0],dev,fs);
+         [PMbb, PMaa] = firpm(N, Rp, As, Wp);
+         subplot(2,1,1);
+         impz(PMbb,PMaa,50);
+         title('Impulse Response: PM Bass Filter');
+         subplot(2,1,2);
+         impz(b_elliptic,a_elliptic,50);
+         title('Impulse Response: PM Bass Filter');
+   end
+   
+   if strcmp(filter_type,'PM')
+         break
+   end
 end
 
 %

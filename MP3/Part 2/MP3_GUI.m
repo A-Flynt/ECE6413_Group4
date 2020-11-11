@@ -713,7 +713,7 @@ function handles = play_music(hObject, handles)
    Tframe = handles.data.frame_size_samples * handles.data.Ts;
    videoframerate = 1 / Tframe;
    v.FrameRate = videoframerate;
-   open(v);
+   open(v); 
 
    % Prepare to play
    done = 0;
